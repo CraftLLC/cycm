@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net/" // Репозиторій Fabric
+        }
+        mavenCentral() // Стандартний репозиторій Maven
+    }
+}
+
+rootProject.name = "CYCM"
+
+dependencyResolutionManagement {
+    repositories {
+        maven { url "https://maven.fabricmc.net/" } // Репозиторій Fabric
+        mavenCentral() // Стандартний репозиторій Maven
+    }
+}

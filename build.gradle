@@ -1,0 +1,69 @@
+plugins {
+    id 'fabric-loom' version '1.11-SNAPSHOT' // Може бути інша версія Fabric Loom
+    id 'java'
+}
+
+repositories {
+    maven {
+        url "https://maven.fabricmc.net/"
+    }
+    mavenCentral()
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21) // Переконайся, що це Java 21
+}
+
+minecraft {
+    // Вказує, для якої версії Minecraft розробляється мод
+    version = project.minecraft_version
+
+    // Маппінги (yarn або mojmap) для декомпіляції Minecraft
+    mappings = loom.mappings_mixin_extensions.forName(project.minecraft_mappings)
+}
+
+// Залежності для твого моду
+dependencies {
+    // Основні залежності Fabric
+    minecraft "net.minecraft:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.minecraft_version}+build.10:v2" // Або інший build, залежить від версії Minecraft
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Залежність для Mod Menu (якщо використовуєш)
+    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}" // Заміни на актуальну версію Mod Menu
+
+    // Для Mixin (якщо використовуєш)
+    implementation include('org.ow2.asm:asm:9.7') // Переконайся, що версія ASM актуальна
+    implementation include('org.ow2.asm:asm-tree:9.7')
+    implementation include('org.ow2.asm:asm-util:9.7')
+
+    // Для GSON, якщо він не включений автоматично
+    implementation 'com.google.code.gson:gson:2.11.0' // Актуальна версія
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 21 // Вкажи Java 21
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${base.archivesName.get()}"}
+    }
+}

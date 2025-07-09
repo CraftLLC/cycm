@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "cycm",
+  "version": "${version}",
+  "name": "CraftLLC YouTube Command Mod [CYCM]",
+  "description": "Здогадайтеся для чого!",
+  "authors": [
+    "CraftLLC"
+  ],
+  "contact": {
+    "homepage": "https://craftllc.pages.dev"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/cycm/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.craftllc.minecraft.mod.cycm.client.CYCMClient"
+    ],
+    "main": [
+      "org.craftllc.minecraft.mod.cycm.CYCM"
+    ]
+  },
+  "mixins": [
+    "cycm.mixins.json",
+    {
+      "config": "cycm.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
