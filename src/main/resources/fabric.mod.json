@@ -15,22 +15,22 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "org.craftllc.minecraft.mod.cycm.client.CYCMClient"
+      "org.craftllc.minecraft.mod.cycm.CYCMClient"
     ],
-    "main": [
-      "org.craftllc.minecraft.mod.cycm.CYCM"
+    "modmenu": [
+      "org.craftllc.minecraft.mod.cycm.ModMenuIntegration"
     ]
   },
-  "mixins": [
-    "cycm.mixins.json",
-    {
-      "config": "cycm.client.mixins.json",
-      "environment": "client"
-    }
-  ],
+  "mixins": [],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "client" ],
+      "update_checker": false
+    }
   }
 }
