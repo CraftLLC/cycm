@@ -1,35 +1,55 @@
 package org.craftllc.minecraft.mod.cycm;
 
+import org.craftllc.minecraft.mod.cycm.ai.AIClient;
+import org.craftllc.minecraft.mod.cycm.config.ModConfigManager;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.craftllc.minecraft.mod.cycm.config.ModConfigManager;
+import net.minecraft.util.Identifier;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.particle.ParticleTypes;
+
+import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.world.World;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 
-import org.craftllc.minecraft.mod.cycm.ai.AIClient;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-
-import java.io.*;
-import java.nio.file.*;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
-import java.util.stream.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
@@ -92,24 +112,24 @@ public class CYCMClient implements ClientModInitializer {
             AIClient.stopCurrentAIGeneration(); // Зупиняємо генерацію AI при вимкненні
         }));
 
+        // Реєструємо обробник для відключення від сервера
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            if (scheduler != null && !scheduler.isShutdown()) {
+                scheduler.shutdown();
+                scheduler = null;
+            }
+            configManager.stopWatchingConfigFile();
+            stopFileProcessing();
+            AIClient.stopCurrentAIGeneration(); // Зупиняємо генерацію AI при вимкненні
+        });
+
         // Перехоплення вхідних повідомлень для передачі ШІ
-        ClientPlayConnectionEvents.INIT.register((handler, client) -> {
-            handler.addServerboundPacketListener(new ClientPlayNetworking.ChannelReadyListener() {
-                @Override
-                public void onChannelReady(ClientPlayNetworking.Context context) {
-                    // This listener is for client-bound packets, not server-bound
-                    // We need to listen to incoming messages from the server
-                }
-            });
-            handler.addPacketListener(net.minecraft.network.packet.PacketType.S2C.GAMEMESSAGE, (packetListener, packet) -> {
-                if (packet instanceof GameMessageS2CPacket gameMessagePacket) {
-                    String messageContent = gameMessagePacket.content().getString().trim();
-                    // Basic heuristic: if it's not a typical chat message, treat as command output
-                    if (!messageContent.startsWith("<") && !messageContent.startsWith("[") && !messageContent.startsWith("(") && !messageContent.startsWith("§")) {
-                        AIClient.setLastExecutedCommandOutput(messageContent);
-                    }
-                }
-            });
+        ClientReceiveMessageEvents.GAME.register((client, message, sender, parameters) -> {
+            String messageContent = message.getString().trim();
+            // Basic heuristic: if it's not a typical chat message, treat as command output
+            if (!messageContent.startsWith("<") && !messageContent.startsWith("[") && !messageContent.startsWith("(") && !messageContent.startsWith("§")) {
+                AIClient.setLastExecutedCommandOutput(messageContent);
+            }
         });
     }
 
