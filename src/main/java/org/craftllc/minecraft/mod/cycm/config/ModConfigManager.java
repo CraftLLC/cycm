@@ -40,6 +40,10 @@ public class ModConfigManager {
         return config;
     }
 
+    public Path getModConfigDir() {
+        return FabricLoader.getInstance().getConfigDir();
+    }
+
     // Метод для завантаження конфігурації з файлу
     public void loadConfig() {
         try {
