@@ -40,6 +40,11 @@ public class ModConfigManager {
         return config;
     }
 
+    // Method to get the mod's configuration directory
+    public Path getModConfigDir() {
+        return FabricLoader.getInstance().getConfigDir();
+    }
+
     // Метод для завантаження конфігурації з файлу
     public void loadConfig() {
         try {
