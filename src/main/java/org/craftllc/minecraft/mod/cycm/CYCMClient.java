@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERRORpackage org.craftllc.minecraft.mod.cycm;
+package org.craftllc.minecraft.mod.cycm;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -16,8 +16,6 @@ import net.minecraft.util.math.Vec3d;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 
 import org.craftllc.minecraft.mod.cycm.ai.AIClient;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
