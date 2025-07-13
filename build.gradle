@@ -1,55 +1,72 @@
-plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT' // Може бути інша версія Fabric Loom
-    id 'java'
+buildscript {
+    repositories {
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net/"
+        }
+        maven {
+            name = "Terraformers"
+            url = "https://maven.terraformersmc.com/"
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "net.fabricmc:fabric-loom:1.11-SNAPSHOT" // або інша версія
+    }
 }
+
+apply plugin: 'fabric-loom'
+apply plugin: 'java'
 
 def minecraft_version = "1.21.1"
 def loader_version = "0.16.4"
-def mod_version = project.mod_version
-
-repositories {
-    maven {
-        name "Fabric"
-        url "https://maven.fabricmc.net/"
-    }
-    maven {
-        name "Terraformers"
-        url "https://maven.terraformersmc.com/"
-    }
-}
+def mod_version = project.hasProperty('mod_version') ? project.mod_version : "1.1"
+def fabric_version = project.hasProperty('fabric_version') ? project.fabric_version : "0.90.0+1.21.1"
+def maven_group = project.hasProperty('maven_group') ? project.maven_group : "com.example"
+def archives_base_name = project.hasProperty('archives_base_name') ? project.archives_base_name : "mod"
 
 version = "${minecraft_version}-${mod_version}"
-group = project.maven_group
+group = maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = archives_base_name
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21) // Переконайся, що це Java 21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
-// Залежності для твого моду
-dependencies {
-    // Основні залежності Fabric
-    minecraft "net.minecraft:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings() // Або інший build, залежить від версії Minecraft
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+repositories {
+    maven {
+        name = "Fabric"
+        url = "https://maven.fabricmc.net/"
+    }
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+    mavenCentral()
+}
 
-    // Залежність для Mod Menu (якщо використовуєш)
-    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}" // Заміни на актуальну версію Mod Menu
+dependencies {
+    minecraft "net.minecraft:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:1.21.1+build.3:v2"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "com.google.code.gson:gson:2.10.1"
 }
 
 processResources {
-    inputs.property "version", project.version
-    // Додаємо властивості minecraft_version та loader_version до inputs
+    inputs.property "version", version
     inputs.property "minecraft_version", minecraft_version
     inputs.property "loader_version", loader_version
 
     filesMatching("fabric.mod.json") {
         expand(
-                version: project.version,
+                version: version,
                 minecraft_version: minecraft_version,
                 loader_version: loader_version
         )
@@ -58,6 +75,6 @@ processResources {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${base.archivesName.get()}"}
+        rename { "${it}_${archives_base_name}" }
     }
 }

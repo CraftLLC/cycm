@@ -16,9 +16,6 @@
   "entrypoints": {
     "client": [
       "org.craftllc.minecraft.mod.cycm.CYCMClient"
-    ],
-    "modmenu": [
-      "org.craftllc.minecraft.mod.cycm.ModMenuIntegration"
     ]
   },
   "mixins": [],
@@ -26,11 +23,5 @@
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
-  },
-  "custom": {
-    "modmenu": {
-      "badges": [ "client" ],
-      "update_checker": false
-    }
   }
 }
