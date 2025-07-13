@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERRORpackage org.craftllc.minecraft.mod.cycm.ai;
+package org.craftllc.minecraft.mod.cycm.ai;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -41,13 +41,7 @@ public class AIClient {
     // AIClient не є ClientModInitializer, тому цей метод видалено.
     // Його ініціалізація відбувається через CYCMClient.onInitializeClient().
 
-    public class AIClient {
-        // ... інші статичні поля та оголошення
-        private static String apiKey = null; // Залишаємо це поле
-
-        // ...
-
-        public static void loadApiKey() {
+    public static void loadApiKey() {
             // Передаємо екземпляр CYCMClient, щоб отримати доступ до configManager
             // або, краще, зробимо configManager публічним статичним полем у CYCMClient
             // щоб до нього можна було звертатись напряму.
@@ -89,7 +83,6 @@ public class AIClient {
                 Constants.LOGGER.error("Error loading Gemini API key: {}", e.getMessage());
             }
         }
-    }
 
     public static void sendMessageToAI(String message, String currentCommandOutput) {
         if (!CYCMClient.configManager.getConfig().isModEnabled()) {
