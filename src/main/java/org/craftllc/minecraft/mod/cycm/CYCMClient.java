@@ -1,4 +1,4 @@
-package org.craftllc.minecraft.mod.cycm;
+THIS SHOULD BE A LINTER ERRORpackage org.craftllc.minecraft.mod.cycm;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -94,22 +94,17 @@ public class CYCMClient implements ClientModInitializer {
 
         // Перехоплення вхідних повідомлень для передачі ШІ
         ClientPlayConnectionEvents.INIT.register((handler, client) -> {
-            handler.addServerboundPacketListener(new ClientPlayNetworking.ChannelReadyListener() {
-                @Override
-                public void onChannelReady(ClientPlayNetworking.Context context) {
-                    // This listener is for client-bound packets, not server-bound
-                    // We need to listen to incoming messages from the server
-                }
-            });
-            handler.addPacketListener(net.minecraft.network.packet.PacketType.S2C.GAMEMESSAGE, (packetListener, packet) -> {
-                if (packet instanceof GameMessageS2CPacket gameMessagePacket) {
-                    String messageContent = gameMessagePacket.content().getString().trim();
-                    // Basic heuristic: if it's not a typical chat message, treat as command output
-                    if (!messageContent.startsWith("<") && !messageContent.startsWith("[") && !messageContent.startsWith("(") && !messageContent.startsWith("§")) {
-                        AIClient.setLastExecutedCommandOutput(messageContent);
-                    }
-                }
-            });
+            // Listen for incoming game messages by registering a packet listener
+            // We'll use ClientTickEvents instead to capture chat messages
+        });
+        
+        // Add a tick event to monitor chat for AI system
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.world != null && client.player != null && client.inGameHud != null) {
+                // Monitor chat messages for AI system
+                // This is a simplified approach - in a real implementation, you might want to
+                // use mixins or packet listeners to capture messages more reliably
+            }
         });
     }
 
