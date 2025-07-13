@@ -1,4 +1,4 @@
-package org.craftllc.minecraft.mod.cycm.ai;
+THIS SHOULD BE A LINTER ERRORpackage org.craftllc.minecraft.mod.cycm.ai;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
